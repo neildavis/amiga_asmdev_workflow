@@ -1,0 +1,42 @@
+name: Amiga Demo
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  amiga_build:
+    name: Build Demo for AmigaOS
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Install amitools
+        run: |
+          python3 -m venv venv
+          ./venv/bin/python3 -m pip install --upgrade pip setuptools wheel
+          ./venv/bin/python3 -m pip install amitools
+      - name: Update package index
+        run: sudo apt update
+      - name: Install dependencies
+        run: sudo apt install -y gimp netpbm
+      - name: Install ipng2iff
+        run: |
+          git clone https://github.com/m0ppers/ipng2iff
+          cd ipng2iff
+          cargo build -r
+          sudo cp target/release/ipng2iff /usr/local/bin/
+      - name: Build ADF using make
+        run: |
+          make adf XDF_TOOL=venv/bin/xdftool -j$(nproc)
+      - name: Upload ADF artifact(s)
+        uses: actions/upload-artifact@v4
+        with:
+          name: amiga_demo_adf
+          path: ./*.adf

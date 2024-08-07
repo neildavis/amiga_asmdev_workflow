@@ -1,0 +1,14 @@
+# build artefacts
+build/
+uae/dh0/main
+# assets that are auto-generated
+assets/*.png
+assets/*.iff
+assets/*.raw
+# src that we don't care about
+include/*_palette.i
+# compiled tools
+tools/vasm
+tools/vlink
+# ADF disk images
+*.adf
