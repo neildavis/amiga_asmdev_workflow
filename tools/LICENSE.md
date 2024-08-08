@@ -4,7 +4,7 @@ The following tools are distributed in source form under their appropriate licen
 
 ## vasm ##
 
-vasm is a portable and retargetable assembler able to create linkable objects in different formats as well as absolute code. Different CPU-, syntax and output-modules are supported. 
+vasm is a portable and retargetable assembler able to create linkable objects in different formats as well as absolute code. Different CPU-, syntax and output-modules are supported.
 
 vasm is distributed under [license](http://sun.hasenbraten.de/vasm/release/vasm.html) by the author Volker Barthelmann
 
@@ -25,7 +25,7 @@ Certain modules may fall under additional copyrights.
 vlink is a portable linker which can be configured to support multiple input and output
 file formats at once.
 
-vasm is distributed under [license](http://sun.hasenbraten.de/vlink/release/vlink.pdf) by the author Frank Wille
+vlink is distributed under [license](http://sun.hasenbraten.de/vlink/release/vlink.pdf) by the author Frank Wille
 
 ```none
 vlink is copyright 1995-2022 by Frank Wille.

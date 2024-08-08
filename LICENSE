@@ -1,7 +1,9 @@
-Copyright (c) 2024 Neil Davis (https://github.com/neildavis)
+# LICENSE #
+
+Copyright (c) 2024 Neil Davis (<https://github.com/neildavis>)
 
 Some source files are taken and/or modified from example software for the book
-"BareMetal Amiga Programming" (ISBN 9798561103261) 
+"BareMetal Amiga Programming" (ISBN 9798561103261)
 These source files are Copyright 2021 ing. E. Th. van den Oosterkamp and carry
 his copyright notice within.
 
@@ -21,4 +23,3 @@ PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIG
 HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-

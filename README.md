@@ -17,13 +17,14 @@ The following features are provided and demonstrated:
 * Building to a [UAE](https://en.wikipedia.org/wiki/UAE_(emulator)) emulated hard drive (`dh0`) folder
 * Building of a ***bootable*** AmigaDOS floppy disk format image (`ADF`) file.
 * A Unix [Makefile](#makefile) to automate building on the host machine
-* A [GitHub Actions (GHA)](https://docs.github.com/en/actions)[workflow](#github-actions-workflow) 
+* A [GitHub Actions (GHA)](https://docs.github.com/en/actions)[workflow](#github-actions-workflow)
 for CI/CD automated building in the the cloud.
 
-## Limitations / TODO: ##
+## Limitations / TODO ##
 
 * Only RAW files with 'interleaved' bitplanes data are generated (no 'back-to-back' support)
 * Only images for low resolution (non-EHB) mode apps are supported.
+* No compression/packing support.
 * No special treatment for AGA
 * Bare bones 'no frills' bootable AmigaDOS ADFs. i.e. no loading messages etc.
 
@@ -53,7 +54,7 @@ but will need to be installed manually to run on a local host machine.
 ### GIMP ###
 
 [GIMP](https://www.gimp.org/) is required to convert GIMP native (`*.xcf`)
-[indexed](https://en.wikipedia.org/wiki/Indexed_color) image asset files into
+[indexed colour](https://en.wikipedia.org/wiki/Indexed_color) mode image asset files into
 an intermediary [`PNG`](https://en.wikipedia.org/wiki/PNG) format.
 
 GIMP may already be installed on your Linux distro. If not it can be installed either through
@@ -70,7 +71,7 @@ or as a flatpak from [FlatHub](https://flathub.org/apps/org.gimp.GIMP)
 [ipng2iff](https://github.com/m0ppers/ipng2iff) is used to create [`ILBM`/`IFF`](https://en.wikipedia.org/wiki/ILBM)
 image files as used on the Amiga from [`PNG`](https://en.wikipedia.org/wiki/PNG) source files exported from GIMP.
 
-`ipngg2iff` has to be built from source. To do so requires you have a working
+`ipng2iff` has to be built from source. To do so requires you have a working
 [RUST](https://www.rust-lang.org/) environment setup.
 
 ```sh
@@ -111,8 +112,8 @@ python3 -m pip install amitools
 
 ## GIMP Source Image Requirements ##
 
-Your source (`.xcf`) GIMP files should be using [indexed](https://en.wikipedia.org/wiki/Indexed_color)
-color mode, not 'RGB'.
+Your source (`.xcf`) GIMP files should be using
+[indexed color](https://en.wikipedia.org/wiki/Indexed_color) mode, not 'RGB'.
 You can convert an RGB image into indexed using GIMP from the menu:
 
 ```none
@@ -164,7 +165,7 @@ Sprites 0-7 operate in pairs and share a palette of 4 colours. As per the
 ```
 
 By including e.g. `spr0` in your filename the copper list palette will be output starting at the appropriate colour index.
-Note, that for each sprite pair only one palette file is generated. In the case of multiple source files for the same sprite 
+Note, that for each sprite pair only one palette file is generated. In the case of multiple source files for the same sprite
 pair, the last one to be processed will be used as the source for palette data.
 
 ## Makefile ##
@@ -183,7 +184,7 @@ The various useful targets are described in the table below
 | `all`     | Convert assets, build tools, assemble source `.s` files into `.o` object files and link program into `uae/dh0`. |
 | `adf`     | Everything in the `all` target PLUS generation of floppy disk image (ADF) file. |
 | `assets`  | Only converts image assets (and generates palette include files) |
-| `tools`   | Only builds the tools (`vasm` & `vlink`)
+| `tools`   | Only builds the tools (`vasm` & `vlink`) |
 
 The Makefile also supports a set of 'clean-up' targets to remove files:
 
