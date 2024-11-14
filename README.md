@@ -25,6 +25,7 @@ for CI/CD automated building in the the cloud.
 * Only RAW files with 'interleaved' bitplanes data are generated (no 'back-to-back' support)
 * Only images for low resolution (non-EHB) mode apps are supported.
 * No compression/packing support.
+* No support for attached sprites palette generation
 * No special treatment for AGA
 * Bare bones 'no frills' bootable AmigaDOS ADFs. i.e. no loading messages etc.
 
@@ -185,6 +186,12 @@ The various useful targets are described in the table below
 | `adf`     | Everything in the `all` target PLUS generation of floppy disk image (ADF) file. |
 | `assets`  | Only converts image assets (and generates palette include files) |
 | `tools`   | Only builds the tools (`vasm` & `vlink`) |
+
+By default the target will not include `linedebug` data and will be stripped of symbols. To preserver these pass `DEBUG=1`:
+
+```sh
+make <TARGET> DEBUG=1
+```
 
 The Makefile also supports a set of 'clean-up' targets to remove files:
 

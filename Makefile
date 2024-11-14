@@ -17,6 +17,9 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# Ganeral flags
+DEBUG := 0
+
 # Tools
 TOOLS_DIR := ./tools
 VASM_DIR := $(TOOLS_DIR)/vasm
@@ -24,11 +27,21 @@ VLINK_DIR := $(TOOLS_DIR)/vlink
 
 # The assembler
 ASM := $(VASM_DIR)/vasmm68k_mot
-ASM_ARGS := -quiet -m68000 -Fhunk -linedebug -I./include
+ASM_ARGS := -quiet -m68000 -Fhunk -I./include
+
+ifeq ($(DEBUG),1)
+# Debug vasm args..
+ASM_ARGS += -linedebug 
+endif
 
 # The linker
 LD := $(VLINK_DIR)/vlink
 LINK_ARGS := -mrel -bamigahunk -Bstatic
+
+ifneq ($(DEBUG),1)
+# Release vlink args..
+LINK_ARGS += -s 
+endif
 
 # Source files
 SRC_DIR := ./src
