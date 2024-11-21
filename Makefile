@@ -43,6 +43,9 @@ ifneq ($(DEBUG),1)
 LINK_ARGS += -s 
 endif
 
+# ZX0 compressor
+ZX0 := salvador -v
+
 # Source files
 SRC_DIR := ./src
 MAIN_SRC := $(SRC_DIR)/main.s
@@ -57,6 +60,8 @@ OBJS := $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(ASM_SRCS:.s=.o))
 ASSETS_DIR := ./assets
 GIMP_ASSETS := $(wildcard $(ASSETS_DIR)/*.xcf)
 RAW_ASSETS := $(GIMP_ASSETS:.xcf=.raw)
+# ZX0 Assets are RAW_ASSETS compressed with ZX0 (salvador)
+ZX0_ASSETS := $(RAW_ASSETS:.raw=_raw.zx0)
 PALETTE_DIR := ./include
 
 # The target ADF dir
@@ -64,13 +69,21 @@ ADF_DIR := ./uae/dh0
 # The Target Binary Program
 TARGET := $(ADF_DIR)/main
 
+# Generic rule to create a RAW asset from XCF
+$(ASSETS_DIR)/%.raw: $(ASSETS_DIR)/%.xcf
+	@./scripts/convert_assets_to_raw.sh -x -p -r -s -i $(PALETTE_DIR) "$<"
+	
+# Generic rule to compress a RAW asset using zx0
+$(ASSETS_DIR)/%_raw.zx0: $(ASSETS_DIR)/%.raw
+	$(ZX0) "$<" "$@" 
+
 # Generic rule to assemble a 68k asm source file (../src/*.cpp) into an object file (*.o)
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.s $(ASM)
 #	@echo '(${ASM}) Assembling source file: $<'
 	$(ASM) $(ASM_ARGS) -o "$@" "$<"
 
 # Link executable
-$(TARGET): $(LD) $(RAW_ASSETS) $(BUILD_DIR) $(MAIN_OBJ) $(OBJS)
+$(TARGET): $(LD) $(RAW_ASSETS) $(ZX0_ASSETS) $(BUILD_DIR) $(MAIN_OBJ) $(OBJS)
 #	@echo '(${LD}) Linking target: $@'
 	$(LD) $(LINK_ARGS) -o "$@" $(MAIN_OBJ) $(OBJS)
 	@echo 'Finished linking target: $@'
@@ -78,10 +91,6 @@ $(TARGET): $(LD) $(RAW_ASSETS) $(BUILD_DIR) $(MAIN_OBJ) $(OBJS)
 # Directories
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
-
-# RAW assets
-$(RAW_ASSETS):
-	@./scripts/convert_assets_to_raw.sh -x -p -r -s -i $(PALETTE_DIR)
 
 # TOOLS - vasm
 $(ASM): $(VASM_DIR)
@@ -105,7 +114,7 @@ all: $(TARGET)
 
 tools: $(ASM) $(LD)
 
-assets: $(RAW_ASSETS)
+assets: $(RAW_ASSETS) $(ZX0_ASSETS)
 
 ADF_FILE := amiga_demo.adf
 ADF_VOLUME_NAME := 'Amiga Demo'
@@ -138,6 +147,7 @@ clean_assets:
 	@rm -f $(ASSETS_DIR)/*.png
 	@rm -f $(ASSETS_DIR)/*.iff
 	@rm -f $(ASSETS_DIR)/*.raw
+	@rm -f $(ASSETS_DIR)/*.zx0
 
 # clean EVERYTHING
 clean_all: clean clean_tools clean_assets clean_adf

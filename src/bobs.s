@@ -72,7 +72,7 @@ MoveBOB::
 ; 		D1.W - Y pos (vert) 
 
 PrepBOB::
-             LEA.L      Background(PC),a1               ; APTR interleaved playfield
+             LEA.L      Bitplanes(PC),a1                ; APTR interleaved playfield
              MULU       #80,d1                          ; Convert Y pos into offset
              ADD.L      d1,a1                           ; Add offset to destination
              AND.W      #$FFF0,d0                       ; Position without shift
@@ -104,7 +104,7 @@ PrepBOB::
 ; 		D1.W - Y pos (vert) 
 
 PlaceBOB:
-             LEA.L      Background(PC),a2               ; APTR interleaved playfield
+             LEA.L      Bitplanes(PC),a2                ; APTR interleaved playfield
              MULU       #80,d1                          ; Convert Y pos into offset
              ADD.L      d1,a2                           ; Add offset to destination
              EXT.L      d0                              ; Clear top bits of D0
@@ -120,8 +120,8 @@ PlaceBOB:
 
              MOVE.L     a1,BLTAPT(a5)                   ; Source A = Mask
              MOVE.L     a0,BLTBPT(a5)                   ; Source B = Object
-             MOVE.L     a2,BLTCPT(a5)                   ; Source C = Background
-             MOVE.L     a2,BLTDPT(a5)                   ; Destination = Background
+             MOVE.L     a2,BLTCPT(a5)                   ; Source C = Bitplanes
+             MOVE.L     a2,BLTDPT(a5)                   ; Destination = Bitplanes
              MOVE.W     #$FFFF,BLTAFWM(a5)              ; No first word masking
              MOVE.W     #$FFFF,BLTALWM(a5)              ; No last word masking
              MOVE.W     d0,BLTCON1(a5)                  ; Use shift for source B
@@ -142,7 +142,7 @@ PlaceBOB:
 ; 		D1.W - Y pos (vert) 
 
 ClearBOB:
-             LEA.L      Background(PC),a1               ; APTR interleaved playfield
+             LEA.L      Bitplanes(PC),a1                ; APTR interleaved playfield
              MULU       #80,d1                          ; Convert Y pos into offset
              ADD.L      d1,a1                           ; Add offset to destination
              AND.W      #$FFF0,d0                       ; Position without shift

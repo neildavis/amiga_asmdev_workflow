@@ -32,9 +32,15 @@ jobs:
           cd ipng2iff
           cargo build -r
           sudo cp target/release/ipng2iff /usr/local/bin/
+      - name: Install salvador (zx0 packer)
+        run: |
+            git clone https://github.com/emmanuel-marty/salvador.git
+            cd salvador
+            make -j$(nproc)
+            sudo cp salvador /usr/local/bin/
       - name: Build ADF using make
         run: |
-          make adf XDF_TOOL=venv/bin/xdftool -j$(nproc)
+          make adf XDF_TOOL=venv/bin/xdftool
       - name: Upload ADF artifact(s)
         uses: actions/upload-artifact@v4
         with:

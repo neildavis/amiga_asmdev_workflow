@@ -26,13 +26,13 @@ script_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 # Get script name
 script_name="$(basename "$0")"
 
-# Set derault input/output dirs
+# Set default input/output dirs
 asset_dir=$(realpath "$script_path/../assets")
 inc_dir="$asset_dir"
 
-# Function to show ussage information and exit
+# Function to show usage information and exit
 show_usage() {
-  echo "usage: ${script_name} [options]"
+  echo "usage: ${script_name} [options] [input file]"
   echo -e  "\nOptions:\n" \
             "\n -a,--asset-dir <dir name>\n" \
             "    Use dir <dir name> to find source assets and place output assets.\n" \
@@ -102,7 +102,7 @@ while [[ $# > 0 ]]; do
         -r | --iff-raw)     skip_raw=false                  ;;
         -s | --inc-pal)     skip_palette=false              ;;
         -x | --xcf-png)     skip_png=false                  ;;
-        *) echo "Unrecognized option ${1} ignored"          ;;
+        *) input_file="${1}"                                ;;
     esac
     shift
 done
@@ -111,6 +111,15 @@ if $show_usage; then
   show_usage
   exit 0
 fi
+
+
+if [[ -z "$input_file" ]]; then
+    input_file="${asset_dir}/*"
+else
+    input_file="$(echo ${input_file%.*})"
+fi
+
+echo "INPUT FILE(S): ${input_file}"
 
 # Check to make sure we have the tools we need available in $PATH
 rgb2iff_cmd="ipng2iff"
@@ -154,12 +163,12 @@ if [[ ! -d "$inc_dir" ]]; then
 fi
 inc_dir=$(realpath "$inc_dir")
 
-# Convert all *.xcf files in assets/GIMP into PNG files in assets/PNG
+# Convert *.xcf files in assets/GIMP into PNG files in assets/PNG
 if $skip_png; then
     echo "XCF->PNG generation skipped. Specify --xcf-png option to include"
 else
-    for xcf_file in "$asset_dir"/*.xcf; do
-        png_file="$asset_dir/$(basename $xcf_file .xcf).png"
+    for xcf_file in ${input_file}.xcf; do
+        png_file="$(dirname $xcf_file)/$(basename $xcf_file .xcf).png"
         echo -e "\nConverting: XCF --> PNG\n<-- $xcf_file\n--> $png_file"
         if ! $dry_run; then
             # Write PNG file
@@ -168,13 +177,13 @@ else
     done
 fi
 
-# Convert all *.png files in assets/PNG into IFF/ILBM *.iff files in assets/IFF
+# Convert *.png files in assets/PNG into IFF/ILBM *.iff files in assets/IFF
 if $skip_iff; then
     echo "PNG->IFF generation skipped. Specify --png-iff option to include"
 else
-    for png_file in "$asset_dir"/*.png; do
+    for png_file in ${input_file}.png; do
         png_res=$(file "$png_file" | grep -oP '([[:digit:]]+[[:blank:]]*x[[:blank:]]*[[:digit:]]+)' | sed 's/ //g')    
-        iff_file="$asset_dir/$(basename $png_file .png).iff"
+        iff_file="$(dirname $png_file)/$(basename $png_file .png).iff"
         echo -e "\nConverting: PNG --> IFF\n<-- $png_file ($png_res)\n--> $iff_file"
         if  ! $dry_run; then
             # Write IFF file
@@ -223,7 +232,7 @@ get_ilbm_info() {
     done <<<$(echo "$ilbm_cmap")
 }
 
-# Convert all *.iff files in assets/IFF to raw (interleaved) plane data in RAW
+# Convert *.iff files in assets/IFF to raw (interleaved) plane data in RAW
 process_ilbm=false
 if $skip_raw; then
     echo "IFF->RAW conversion skipped. Specify --iff-raw option to include"
@@ -236,10 +245,10 @@ else
     process_ilbm=true
 fi
 if $process_ilbm; then
-    for iff_file in "$asset_dir"/*.iff; do
+    for iff_file in ${input_file}.iff; do
         # grab some metadata on the IFF file
         get_ilbm_info
-        raw_file="$asset_dir/$(basename $iff_file .iff).raw"
+        raw_file="$(dirname $iff_file)/$(basename $iff_file .iff).raw"
         # Only write one palette file for each sprite pair
         case "{$iff_file,,}" in
         *spr0* | *spr1*)   palette_file="$inc_dir/sprites_01_palette.i"     ;; # Sprites 0 & 1 palette file
@@ -278,13 +287,13 @@ fi
 
 # Delete intermediary files if requested:
 if $delete_int_files; then
-    for png_file in "$asset_dir"/*.png; do
+    for png_file in ${input_file}.png; do
         echo "Removing $png_file"
         if ! $dry_run; then
             rm "$png_file"
         fi
     done
-    for iff_file in "$asset_dir"/*.iff; do
+    for iff_file in ${input_file}.iff; do
         echo "Removing $iff_file"
         if ! $dry_run; then
             rm "$iff_file"

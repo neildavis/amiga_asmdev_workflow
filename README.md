@@ -12,6 +12,7 @@ under [their own licenses](./tools/LICENSE.md).
 The following features are provided and demonstrated:
 
 * Conversion of [GIMP](https://www.gimp.org/) authored image assets (*`.xcf`) into `.png`, `.iff` and `.raw` (interleaved) formats
+* Compression ('packing') or raw assets using the '`zx0`' format
 * Generation of palette (`COLORxx` register) data for image assets in copper list format
 * Host compilation of assembler (`vasm`) and linker (`vlink`) tools included.
 * Building to a [UAE](https://en.wikipedia.org/wiki/UAE_(emulator)) emulated hard drive (`dh0`) folder
@@ -24,7 +25,7 @@ for CI/CD automated building in the the cloud.
 
 * Only RAW files with 'interleaved' bitplanes data are generated (no 'back-to-back' support)
 * Only images for low resolution (non-EHB) mode apps are supported.
-* No compression/packing support.
+* Only `zx0` compression/packing support.
 * No support for attached sprites palette generation
 * No special treatment for AGA
 * Bare bones 'no frills' bootable AmigaDOS ADFs. i.e. no loading messages etc.
@@ -32,9 +33,12 @@ for CI/CD automated building in the the cloud.
 ## Demo App ##
 
 This repo contains source code for a simple Amiga demo using Bitplanes (playfield), Blitter objects (BOBs) and Sprites.
+
 This demo was made using samples of [example code](https://www.edsa.uk/blog/downloads) from the excellent book
 ['Bare-Metal Amiga Programming'](https://www.edsa.uk/blog/bare-metal-amiga-programming)
 by E. Th. van den Oosterkamp, and used under his permissive license terms.
+
+This demo also includes m68k asm `zx0` decompression code from [`salvador`](https://github.com/emmanuel-marty/salvador) by Emmanuel Marty, also used under permissive license terms.
 
 The app was also developed in the equally excellent
 [Amiga Assembly](https://marketplace.visualstudio.com/items?itemName=prb28.amiga-assembly)
@@ -96,6 +100,22 @@ It is part of the [`netpbm`](https://netpbm.sourceforge.net/) toolkit.
 
 ```sh
 sudo apt install netpbm
+```
+
+### salvador ###
+[salvador](https://github.com/emmanuel-marty/salvador) is used to compress `*.raw` images into `*_raw.zx0` packed files in the `zx0` format to help save space.
+
+`salvador` has to be built from source.
+```sh
+git clone https://github.com/emmanuel-marty/salvador
+cd salvador
+make
+```
+
+Once `salvador` has built, you need to move it to somewhere where it can be found in your `$PATH`. e.g.
+
+```sh
+sudo cp salvador /usr/local/bin
 ```
 
 ### amitools ###
@@ -212,7 +232,7 @@ Passing `-h` (or `--help`) to the script shows usage information:
 
 ```none
 $ ./scripts/convert_assets_to_raw.sh -h
-usage: convert_assets_to_raw.sh [options]
+usage: convert_assets_to_raw.sh [options] [input file]
 
 Options:
  
@@ -235,6 +255,8 @@ Options:
  -x,--xcf-png
      Include generation of PNG files from XCFs. 
 ```
+
+If no `input_file` is specified, the script will works as a wildcard selecting all applicable files in the specified (or default) 'assets' directory.
 
 ## GitHub Actions Workflow ##
 

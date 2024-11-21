@@ -5,6 +5,7 @@ uae/dh0/main
 assets/*.png
 assets/*.iff
 assets/*.raw
+assets/*.zx0
 # src that we don't care about
 include/*_palette.i
 # compiled tools

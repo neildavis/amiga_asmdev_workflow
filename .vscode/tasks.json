@@ -21,6 +21,7 @@
 				"exefilename": "../uae/dh0/main",
 				"entrypoint": "main.s",
 				"args": [
+					"-mrel",
 					"-bamigahunk",
 					"-Bstatic"
 				]
