@@ -14,6 +14,7 @@ The following features are provided and demonstrated:
 * Conversion of [GIMP](https://www.gimp.org/) authored image assets (*`.xcf`) into `.png`, `.iff` and `.raw` (interleaved) formats
 * Compression ('packing') or raw assets using the '`zx0`' format
 * Generation of palette (`COLORxx` register) data for image assets in copper list format
+* Generation of a Workbench 'tool' icon (*.info) for the main executable from a GIMP image (*.xcf)
 * Host compilation of assembler (`vasm`) and linker (`vlink`) tools included.
 * Building to a [UAE](https://en.wikipedia.org/wiki/UAE_(emulator)) emulated hard drive (`dh0`) folder
 * Building of a ***bootable*** AmigaDOS floppy disk format image (`ADF`) file.
@@ -29,6 +30,7 @@ for CI/CD automated building in the the cloud.
 * No support for attached sprites palette generation
 * No special treatment for AGA
 * Bare bones 'no frills' bootable AmigaDOS ADFs. i.e. no loading messages etc.
+* Only a target executable ('tool' type) icon is generated. No custom disk icon.
 
 ## Demo App ##
 
@@ -203,8 +205,9 @@ The various useful targets are described in the table below
 | Target    | Description |
 |-----------|-------------|
 | `all`     | Convert assets, build tools, assemble source `.s` files into `.o` object files and link program into `uae/dh0`. |
-| `adf`     | Everything in the `all` target PLUS generation of floppy disk image (ADF) file. |
+| `adf`     | Everything in the `all` target PLUS generation of icons and floppy disk image (ADF) file. |
 | `assets`  | Only converts image assets (and generates palette include files) |
+| `icons`   | Only converts icons |
 | `tools`   | Only builds the tools (`vasm` & `vlink`) |
 
 By default the target will not include `linedebug` data and will be stripped of symbols. To preserver these pass `DEBUG=1`:
@@ -220,6 +223,7 @@ The Makefile also supports a set of 'clean-up' targets to remove files:
 | `clean`           | Removes built target program and `.o` object files.|
 | `clean_adf`       | Removes the floppy disk image (ADF) file. |
 | `clean_assets`    | Removes converted image asset files (and generated palette include files) |
+| `clean_icons`     | Removes converted icon files |
 | `clean_tools`     | Removes object and executable files for the tools (`vasm` & `vlink`)|
 | `clean_all`       | Removes all of the above|
 
@@ -257,6 +261,34 @@ Options:
 ```
 
 If no `input_file` is specified, the script will works as a wildcard selecting all applicable files in the specified (or default) 'assets' directory.
+
+## Icon Conversion Script ##
+
+The icon asset conversion script (`amiga-icon-converter.py`) is located in the [scripts](./scripts/) directory.
+It's used by the `Makefile`, but it can also be used standalone to do more selective conversions if required:
+
+Passing `-h` (or `--help`) to the script shows usage information:
+
+```none
+$ ./scripts/amiga-icon-converter.py -h
+usage: amiga-icon-converter.py [-h] [--type {1,2,3,4,5,6,7,8}] [--width WIDTH] [--height HEIGHT] [--output OUTPUT] [--palette {1,2}] input_image
+
+Convert image to Amiga Workbench icon
+
+positional arguments:
+  input_image           Path to input image file
+
+options:
+  -h, --help            show this help message and exit
+  --type {1,2,3,4,5,6,7,8}
+                        Icon type (1: Disk, 2: Drawer, 3: Tool, 4: Project, 5: Trashcan, 6: Device, 7: Kickstart ROM, 8: Appicon, default: 3)
+  --width WIDTH         Icon width in pixels (default: 48)
+  --height HEIGHT       Icon height in pixels (default: 48)
+  --output OUTPUT       Optional output path for the .info file
+  --palette {1,2}       Palette version (1 for 1.x, 2 for 2.x, default: 2)
+```
+
+If no output file is specified with `--output` the output will have the same name and path as the `input_image` but the file extension changed to `.info`
 
 ## GitHub Actions Workflow ##
 

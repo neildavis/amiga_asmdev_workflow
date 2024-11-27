@@ -66,12 +66,26 @@ PALETTE_DIR := ./include
 
 # The target ADF dir
 ADF_DIR := ./uae/dh0
+
 # The Target Binary Program
-TARGET := $(ADF_DIR)/main
+TARGET_NAME := main
+TARGET := $(ADF_DIR)/$(TARGET_NAME)
+
+# Icons
+ICONS_DIR := ./icons
+TARGET_ICON := $(ICONS_DIR)/$(TARGET_NAME).info
+ICON_WIDTH=64
+ICON_HEIGHT=32
+ICON_PALETTE=1 # 1 = 1.x colours, 2 = 2.x colours
 
 # Generic rule to create a RAW asset from XCF
 $(ASSETS_DIR)/%.raw: $(ASSETS_DIR)/%.xcf
 	@./scripts/convert_assets_to_raw.sh -x -p -r -s -i $(PALETTE_DIR) "$<"
+	
+# Generic rule to create a .INFO icon from XCF
+$(ICONS_DIR)/%.info: $(ICONS_DIR)/%.xcf
+	@./scripts/convert_assets_to_raw.sh -x "$<"
+	@./scripts/amiga-icon-converter.py --width=$(ICON_WIDTH) --height=$(ICON_HEIGHT) --palette=$(ICON_PALETTE) "$(basename $<).png"
 	
 # Generic rule to compress a RAW asset using zx0
 $(ASSETS_DIR)/%_raw.zx0: $(ASSETS_DIR)/%.raw
@@ -120,11 +134,12 @@ ADF_FILE := amiga_demo.adf
 ADF_VOLUME_NAME := 'Amiga Demo'
 XDF_TOOL := xdftool
 
-adf: clean_adf $(TARGET)
+adf: clean_adf $(TARGET) $(TARGET_ICON)
 	$(XDF_TOOL) $(ADF_FILE) create
 	$(XDF_TOOL) $(ADF_FILE) format $(ADF_VOLUME_NAME)
 	$(XDF_TOOL) $(ADF_FILE) boot install boot1x
-	$(XDF_TOOL) $(ADF_FILE) write $(ADF_DIR)/main
+	$(XDF_TOOL) $(ADF_FILE) write $(TARGET)
+	$(XDF_TOOL) $(ADF_FILE) write $(TARGET_ICON)
 	$(XDF_TOOL) $(ADF_FILE) write $(ADF_DIR)/s
 	$(XDF_TOOL) $(ADF_FILE) list
 
@@ -149,8 +164,12 @@ clean_assets:
 	@rm -f $(ASSETS_DIR)/*.raw
 	@rm -f $(ASSETS_DIR)/*.zx0
 
+clean_icons:
+	rm -f $(ICONS_DIR)/*.png
+	rm -f $(ICONS_DIR)/*.info
+
 # clean EVERYTHING
-clean_all: clean clean_tools clean_assets clean_adf
+clean_all: clean clean_tools clean_assets clean_icons clean_adf
 
 #Non-File Targets
-.PHONY: adf all assets clean clean_tools clean_assets clean_all
+.PHONY: adf all assets clean clean_tools clean_assets clean_icons clean_all
