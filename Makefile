@@ -24,6 +24,9 @@ DEBUG := 0
 TOOLS_DIR := ./tools
 VASM_DIR := $(TOOLS_DIR)/vasm
 VLINK_DIR := $(TOOLS_DIR)/vlink
+VENV := venv
+PYTHON := $(VENV)/bin/python
+PIP := $(PYTHON) -m pip
 
 # The assembler
 ASM := $(VASM_DIR)/vasmm68k_mot
@@ -83,9 +86,9 @@ $(ASSETS_DIR)/%.raw: $(ASSETS_DIR)/%.xcf
 	@./scripts/convert_assets_to_raw.sh -x -p -r -s -i $(PALETTE_DIR) "$<"
 	
 # Generic rule to create a .INFO icon from XCF
-$(ICONS_DIR)/%.info: $(ICONS_DIR)/%.xcf
+$(ICONS_DIR)/%.info: $(ICONS_DIR)/%.xcf $(PYTHON)
 	@./scripts/convert_assets_to_raw.sh -x "$<"
-	@./scripts/amiga-icon-converter.py --width=$(ICON_WIDTH) --height=$(ICON_HEIGHT) --palette=$(ICON_PALETTE) "$(basename $<).png"
+	@$(PYTHON) ./scripts/amiga-icon-converter.py --width=$(ICON_WIDTH) --height=$(ICON_HEIGHT) --palette=$(ICON_PALETTE) "$(basename $<).png"
 	
 # Generic rule to compress a RAW asset using zx0
 $(ASSETS_DIR)/%_raw.zx0: $(ASSETS_DIR)/%.raw
@@ -124,6 +127,13 @@ $(VLINK_DIR):
 	@echo 'Extracting vlink source into $(VLINK_DIR)...'
 	@tar xf $(TOOLS_DIR)/vlink.tar.gz -C $(TOOLS_DIR)
 
+# TOOLS - python
+$(PYTHON):
+	python3 -m venv $(VENV)
+	$(PIP) install --upgrade pip setuptools wheel
+	$(PIP) install -r python/requirements.txt
+
+
 all: $(TARGET)
 
 tools: $(ASM) $(LD)
@@ -132,9 +142,9 @@ assets: $(RAW_ASSETS) $(ZX0_ASSETS)
 
 ADF_FILE := amiga_demo.adf
 ADF_VOLUME_NAME := 'Amiga Demo'
-XDF_TOOL := xdftool
+XDF_TOOL := $(VENV)/bin/xdftool
 
-adf: clean_adf $(TARGET) $(TARGET_ICON)
+adf: clean_adf $(TARGET) $(TARGET_ICON) $(PYTHON)
 	$(XDF_TOOL) $(ADF_FILE) create
 	$(XDF_TOOL) $(ADF_FILE) format $(ADF_VOLUME_NAME)
 	$(XDF_TOOL) $(ADF_FILE) boot install boot1x

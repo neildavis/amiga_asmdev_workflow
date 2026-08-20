@@ -1,0 +1,5 @@
+amitools==0.8.1
+packaging==26.2
+pillow==12.3.0
+setuptools==83.0.0
+wheel==0.47.0

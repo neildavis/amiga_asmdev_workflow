@@ -15,3 +15,5 @@ tools/vasm
 tools/vlink
 # ADF disk images
 *.adf
+# python
+venv/

@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - dev
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,12 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
-      - name: Install Python dependencies
-        run: |
-          python3 -m venv venv
-          ./venv/bin/python3 -m pip install --upgrade pip setuptools wheel
-          ./venv/bin/python3 -m pip install amitools Pillow
+        uses: actions/checkout@v6
       - name: Update apt package index
         run: sudo apt update
       - name: Install apt package dependencies
@@ -40,10 +36,9 @@ jobs:
             sudo cp salvador /usr/local/bin/
       - name: Build ADF using make
         run: |
-          source venv/bin/activate
-          make adf XDF_TOOL=venv/bin/xdftool
+          make adf
       - name: Upload ADF artifact(s)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: amiga_demo_adf
           path: ./*.adf
